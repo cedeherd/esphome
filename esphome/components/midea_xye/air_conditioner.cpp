@@ -44,15 +44,18 @@ void AirConditioner::setup() {
   this->last_on_mode_ = *this->supported_modes_.begin();
   UpdateNextCycle = 0;
   ForceReadNextCycle = 1;
+  FlowCtrlPin = 5;  // On 8266 D1/IO5
 
   //Start up in Auto fan mode (since unit doesn't report it correctly)
   this->fan_mode = ClimateFanMode::CLIMATE_FAN_AUTO;
 
   //Set interface to Celcius
   setClientCommand(CLIENT_COMMAND_CELCIUS);
+  digitalWrite(FlowCtrlPin, true);
   this->uart_->write_array(TXData, TX_LEN);
   this->uart_->flush();
   delay(this->response_timeout);
+  digitalWrite(FlowCtrlPin, false);
   uint8_t data;
   while (this->uart_->available())
     this->uart_->read_byte(&data);
@@ -145,10 +148,12 @@ void AirConditioner::update() {
 
     //TODO: Reimplement flow control for manual RS485 flow control chips 
     //digitalWrite(ComControlPin, RS485_TX_PIN_VALUE);
+    digitalWrite(FlowCtrlPin, true);
     this->uart_->write_array(TXData, TX_LEN);
     this->uart_->flush();
     delay(this->response_timeout);
     //digitalWrite(ComControlPin, RS485_RX_PIN_VALUE);
+    digitalWrite(FlowCtrlPin, false);
 
     uint8_t i = 0;
     while (this->uart_->available())

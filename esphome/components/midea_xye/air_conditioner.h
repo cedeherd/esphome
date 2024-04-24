@@ -199,7 +199,8 @@ private:
   uint8_t UpdateNextCycle;
   uint8_t ForceReadNextCycle;
   uint32_t response_timeout;
-
+  uint8_t FlowCtrlPin;
+ 
 protected:
   uart::UARTComponent *uart_;
 #ifdef USE_REMOTE_TRANSMITTER
